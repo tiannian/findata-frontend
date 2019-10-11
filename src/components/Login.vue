@@ -6,7 +6,7 @@
             </b-col>
         </b-row>
         <b-row>
-            <b-col sm=12 v-for="role in roles" :key="role.name">
+            <b-col md=3 v-for="role in roles" :key="role.name">
                 <div>
                     <b-card
                         :title="role.content"

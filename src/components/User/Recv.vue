@@ -31,7 +31,7 @@
                     <span v-if="status.upload == 0">
                         点击收款
                     </span>
-                    <span v-if="!status.upload == 2">
+                    <span v-if="status.upload == 2">
                         收款成功
                     </span>
                 </b-button>
@@ -48,6 +48,11 @@
 <script>
 import Header from '../Header.vue';
 import Footer from '../Footer.vue';
+import axios from 'axios';
+
+const fetchUrl = 'http://localhost:8501/api/v0.1/transfer/fetch';
+const recvUrl = 'http://localhost:8501/api/v0.1/transfer/recv';
+
 
 export default {
     name: 'Recv',
@@ -73,39 +78,32 @@ export default {
         },
         async recvCoin() {
             this.status.upload = 1;
+            let userFlag = this.$route.params.id;
+            let infoStr = localStorage.getItem(`User${userFlag}Info`);
+            let info = JSON.parse(infoStr);
+            let result = await axios.post(`${recvUrl}/${this.$route.params.txid}`, {
+                target: info.publicKey
+            });
+            console.log(result);
+            this.status.upload = 2;
         },
     },
-    computed: {
-    
+    async mounted () {
+        console.log(this.$route.params.txid);
+        // 读取货币列表
+        let result = await axios.get(`${fetchUrl}/${this.$route.params.txid}`);
+        console.log(result.data);
+        for (let coin of result.data.data) {
+            let res = {};
+            res.amount = coin.amount;
+            res.owner = coin.owner;
+            res.id = coin.hash;
+            this.coins.push(res);
+        }
     },
     data () {
         return {
-            coins: [
-                {
-                    id: "5fd924625f6ab16a19cc9807c7c506ae1813490e4ba675f843d5a10e0baacdb8",
-                    owner: "411257069909f74653add60de007c33fb000753c2a021a576fe17f45a3cab74d",
-                    amount: 500,
-                    selected: false,
-                },
-                {
-                    id: "66b1132a0173910b01ee3a15ef4e69583bbf2f7f1e4462c99efbe1b9ab5bf808",
-                    owner: "411257069909f74653add60de007c33fb000753c2a021a576fe17f45a3cab74d",
-                    amount: 10000,
-                    selected: false,
-                },
-                {
-                    id: "0c4c8e302e7a074a8a1c2600cd1af07505843adb2c026ea822f46d3b5a98dd1f",
-                    owner: "411257069909f74653add60de007c33fb000753c2a021a576fe17f45a3cab74d",
-                    amount: 10000,
-                    selected: false,
-                },
-                {
-                    id: "bf5b76c021a30a736a5c40c6ba6ee8a5be435f2ca7e2e8e18e5ae27268582d9f",
-                    owner: "411257069909f74653add60de007c33fb000753c2a021a576fe17f45a3cab74d",
-                    amount: 10000,
-                    selected: false,
-                },
-            ],
+            coins: [],
             status: {
                 upload: 0,
             }

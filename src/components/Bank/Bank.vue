@@ -15,15 +15,6 @@
                     </b-modal>
                 </div>
                     <br>
-                <div>
-                    <b-input-group prepend="输入交易序列" class="mt-3">
-                        <b-form-input v-model="txid"></b-form-input>
-                        <b-input-group-append>
-                            <b-button variant="outline-success" v-on:click="recvCoin">接收货币</b-button>
-                        </b-input-group-append>
-                    </b-input-group>
-                </div>
-                <br>
             </b-col>
         </b-row>
         <b-row v-for="i in coins.length" :key="i">
@@ -73,7 +64,6 @@ import Footer from '../Footer.vue';
 import QrCode from 'qrcode';
 import nacl from 'tweetnacl';
 import axios from 'axios';
-import QrScanner from 'qr-scanner';
 
 const certUrl = 'http://localhost:8500/api/v0.1/certificate';
 const coinsUrl = 'http://localhost:8501/api/v0.1/owner';
@@ -125,27 +115,12 @@ export default {
             this.status.upload = false;
             this.$refs['qrcode'].show();
         },
-        recvCoin() {
-            console.log(this.txid)
-            let userFlag = this.$route.params.id
-            this.$router.push(`/user/${userFlag}/recv/${this.txid}/`)
-        },
-        async scanQrCode() {
-            console.log(this.file);
-            try{
-                let result = await QrScanner.scanImage(this.file);
-            } catch(e) {
-                alert(e);
-            }
-            console.log(result);
-        }
     },
     async mounted () {
         // Load info
-        let userFlag = this.$route.params.id
-        let infoStr = localStorage.getItem(`User${userFlag}Info`);
+        let infoStr = localStorage.getItem('BankInfo');
         if(infoStr == null) {
-            this.name = `用户${userFlag}`;
+            this.name = "商业银行";
             let keys = nacl.sign.keyPair();
             this.publicKey = keys.publicKey;
             this.secretKey = keys.secretKey;
@@ -154,10 +129,10 @@ export default {
                 publicKey: Buffer.from(this.publicKey).toString('hex'),
                 secretKey: Buffer.from(this.secretKey).toString('hex'),
             }
-            localStorage.setItem(`User${userFlag}Info`, JSON.stringify(info));
+            localStorage.setItem('BankInfo', JSON.stringify(info));
             let result = await axios.post(certUrl, {
-                name: `用户${userFlag}`,
-                email: `user${userFlag}@findata.com`,
+                name: "商业银行",
+                email: "example@example.com",
                 publicKey: info.publicKey,
             });
             // eslint-disable-next-line
@@ -198,8 +173,6 @@ export default {
             name: "商业银行",
             publicKey: "",
             secretKey: "",
-            file:null,
-            txid: null,
             status: {
                 selected :0,
                 code: "asdasdasdsds",

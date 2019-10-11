@@ -35,6 +35,10 @@
 <script>
 import Header from '../Header.vue';
 import Footer from '../Footer.vue';
+import axios from 'axios';
+
+const allCoinUrl = 'http://localhost:8501/api/v0.1/coin'
+const publicKeyUrl = 'http://localhost:8500/api/v0.1/certificate'
 
 export default {
     name: 'Register',
@@ -56,34 +60,37 @@ export default {
             return "面额 " + (amount / 100) +" 元货币";
         }
     },
+    async mounted () {
+        let result = await axios.get(allCoinUrl);
+            // eslint-disable-next-line
+            console.log(result.data.data)
+        for (let coin of result.data.data) {
+            
+            let res = {};
+            let _result = await axios.get(`${publicKeyUrl}/${coin.owner}`)
+            res.owner_name = _result.data.data.user.name;
+            res.amount = coin.amount;
+            res.owner = coin.owner;
+            res.id = coin.hash;
+            // eslint-disable-next-line
+            console.log(res);
+            
+            this.coins.push(res);
+        }
+        /*for (let index in result.data.data.result) {
+            let owner = result.data.data.result[index];
+            let data = {};
+            data.owner = owner;
+            let _result = await axios.get(`${publicKeyUrl}/${owner}`)
+            // eslint-disable-next-line
+            console.log(_result.data)
+            data.owner_name = _result.data.data.user;
+            data.amount = 
+        }*/
+    },
     data () {
         return {
-            coins: [
-                {
-                    id: "5fd924625f6ab16a19cc9807c7c506ae1813490e4ba675f843d5a10e0baacdb8",
-                    owner: "411257069909f74653add60de007c33fb000753c2a021a576fe17f45a3cab74d",
-                    amount: 500,
-                    owner_name: "商业银行",
-                },
-                {
-                    id: "66b1132a0173910b01ee3a15ef4e69583bbf2f7f1e4462c99efbe1b9ab5bf808",
-                    owner: "411257069909f74653add60de007c33fb000753c2a021a576fe17f45a3cab74d",
-                    amount: 10000,
-                    owner_name: "商业银行",
-                },
-                {
-                    id: "0c4c8e302e7a074a8a1c2600cd1af07505843adb2c026ea822f46d3b5a98dd1f",
-                    owner: "411257069909f74653add60de007c33fb000753c2a021a576fe17f45a3cab74d",
-                    amount: 10000,
-                    owner_name: "商业银行",
-                },
-                {
-                    id: "bf5b76c021a30a736a5c40c6ba6ee8a5be435f2ca7e2e8e18e5ae27268582d9f",
-                    owner: "411257069909f74653add60de007c33fb000753c2a021a576fe17f45a3cab74d",
-                    amount: 10000,
-                    owner_name: "商业银行",
-                },
-            ]
+            coins: []
         }
     }
 }

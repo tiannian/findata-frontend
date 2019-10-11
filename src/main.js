@@ -11,6 +11,7 @@ import Register from './components/Register/Register.vue';
 import Issue from './components/Register/Issue.vue';
 import User from './components/User/User.vue';
 import Recv from './components/User/Recv.vue';
+import Bank from './components/Bank/Bank.vue';
 
 Vue.config.productionTip = false
 
@@ -23,7 +24,8 @@ const router = new VueRouter({
         { path: '/register', component: Register },
         { path: '/register/issue', component: Issue },
         { path: '/user/:id', component: User },
-        { path: '/recv/:txid/', component: Recv },
+        { path: '/bank', component: Bank },
+        { path: '/user/:id/recv/:txid/', component: Recv },
         
     ]
 })

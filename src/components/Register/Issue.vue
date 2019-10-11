@@ -12,13 +12,20 @@
             </b-col>
         </b-row>
         <br>
+        
+        <b-row>
+            <b-col>
+                <b-form-input aria-label="面额" placeholder="请输入发行的拥有者公钥" v-model="owner"></b-form-input>
+                <br>
+            </b-col>
+        </b-row>
         <b-row>
             <b-col>
                 <div v-for="i in plans.length" :key="i">
                     <div>
                         <b-input-group prepend="面额与数量" class="mb-2">
-                            <b-form-input aria-label="面额" placeholder="请输入面额"></b-form-input>
-                            <b-form-input aria-label="数量" placeholder="请输入数量"></b-form-input>
+                            <b-form-input aria-label="面额" placeholder="请输入面额" v-model="plans[i-1].amount"></b-form-input>
+                            <b-form-input aria-label="数量" placeholder="请输入数量" v-model="plans[i-1].total"></b-form-input>
                             <b-input-group-append>
                                 <b-button variant="outline-success" v-on:click="delPlan(i - 1)">删除</b-button>
                             </b-input-group-append>
@@ -56,6 +63,9 @@
 <script>
 import Header from '../Header.vue';
 import Footer from '../Footer.vue';
+import axios from 'axios';
+
+const issueUrl = 'http://localhost:8501/api/v0.1/issue'
 
 export default {
     name: 'Register',
@@ -78,8 +88,15 @@ export default {
                 this.plans.splice(i,1);
             }
         },
-        uploadPlan(){
+        async uploadPlan(){
             this.status.uploader.upload = true;
+            let result = await axios.post(issueUrl, {
+                coins: this.plans,
+                owner: this.owner,
+            })
+            // eslint-disable-next-line
+            console.log(result.data)
+            this.status.uploader.upload = false;
         }
     },
     computed:{
@@ -90,6 +107,7 @@ export default {
     data () {
         return {
             plans: [],
+            owner: '',
             status: {
                 uploader: {
                     upload: false,
